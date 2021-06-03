@@ -8,7 +8,12 @@ import React, {
 } from 'react'
 import { Dimensions, View, ActivityIndicator, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
-import { Asset, AssetsOptions, getAssetsAsync } from 'expo-media-library'
+import {
+    addListener,
+    Asset,
+    AssetsOptions,
+    getAssetsAsync,
+} from 'expo-media-library'
 import { AssetsSelectorList } from './AssetsSelectorList'
 import { DefaultTopNavigator } from './DefaultTopNavigator'
 import * as ImageManipulator from 'expo-image-manipulator'
@@ -22,15 +27,6 @@ import {
 import { ImageResult } from 'expo-image-manipulator'
 
 const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
-    const isMounted = useRef(false)
-
-    useEffect(() => {
-        isMounted.current = true
-        return () => {
-            isMounted.current = false
-        }
-    }, [])
-
     const {
         manipulate,
         assetsType,
@@ -90,6 +86,18 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
         [assetItems]
     )
 
+    const handlePermissionsChanged = useCallback(() => {
+        getAssets()
+    }, [])
+
+    useEffect(() => {
+        const subscription = addListener(handlePermissionsChanged)
+
+        return function removeListener() {
+            subscription.remove()
+        }
+    })
+
     const onClickUseCallBack = useCallback((id: string) => {
         setSelectedItems((selectedItems) => {
             const alreadySelected = selectedItems.indexOf(id) >= 0
@@ -102,7 +110,6 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
     }, [])
 
     useEffect(() => {
-        alert(1)
         getAssets()
     }, [assetsType])
 
