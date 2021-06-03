@@ -75,7 +75,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
         (params: AssetsOptions) => {
             getAssetsAsync(params)
                 .then(({ endCursor, assets, hasNextPage }) => {
-                    if (!isMounted) return
+                    if (!isMounted.current) return
                     if (availableOptions.after === endCursor) return
                     const newAssets = assets
                     setAvailableOptions({
