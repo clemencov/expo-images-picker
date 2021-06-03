@@ -43,7 +43,6 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
     const [selectedItems, setSelectedItems] = useState<string[]>([])
 
     const [permissions, setPermissions] = useState({
-        hasCameraPermission: false,
         hasCameraRollPermission: false,
     })
 
@@ -76,20 +75,15 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
                 })
                 .catch((err) => onError && onError(err))
         },
-        [assetItems, permissions.hasCameraPermission]
+        [assetItems]
     )
 
     const getCameraPermissions = useCallback(async () => {
-        const { status: CAMERA }: any = await Permissions.askAsync(
-            Permissions.CAMERA
-        )
-
         const { status: MEDIA_LIBRARY }: any = await Permissions.askAsync(
             Permissions.MEDIA_LIBRARY
         )
 
         setPermissions({
-            hasCameraPermission: CAMERA === 'granted',
             hasCameraRollPermission: MEDIA_LIBRARY === 'granted',
         })
     }, [])
@@ -107,11 +101,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
 
     useEffect(() => {
         getAssets()
-    }, [
-        assetsType,
-        permissions.hasCameraPermission,
-        permissions.hasCameraRollPermission,
-    ])
+    }, [assetsType, permissions.hasCameraRollPermission])
 
     const getAssets = () => {
         try {
