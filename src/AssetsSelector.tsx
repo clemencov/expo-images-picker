@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Dimensions, View, ActivityIndicator, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
-import * as Permissions from 'expo-permissions'
 import { Asset, AssetsOptions, getAssetsAsync } from 'expo-media-library'
 import { AssetsSelectorList } from './AssetsSelectorList'
 import { DefaultTopNavigator } from './DefaultTopNavigator'
@@ -42,10 +41,6 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
 
     const [selectedItems, setSelectedItems] = useState<string[]>([])
 
-    const [permissions, setPermissions] = useState({
-        hasCameraRollPermission: false,
-    })
-
     const [availableOptions, setAvailableOptions] = useState<PagedInfo>({
         first: 500,
         totalCount: 0,
@@ -78,16 +73,6 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
         [assetItems]
     )
 
-    const getCameraPermissions = useCallback(async () => {
-        const { status: MEDIA_LIBRARY }: any = await Permissions.askAsync(
-            Permissions.MEDIA_LIBRARY
-        )
-
-        setPermissions({
-            hasCameraRollPermission: MEDIA_LIBRARY === 'granted',
-        })
-    }, [])
-
     const onClickUseCallBack = useCallback((id: string) => {
         setSelectedItems((selectedItems) => {
             const alreadySelected = selectedItems.indexOf(id) >= 0
@@ -101,7 +86,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
 
     useEffect(() => {
         getAssets()
-    }, [assetsType, permissions.hasCameraRollPermission])
+    }, [assetsType])
 
     const getAssets = () => {
         try {
@@ -115,9 +100,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
                     params.after = availableOptions.after
                 if (!availableOptions.hasNextPage) return
 
-                return permissions.hasCameraRollPermission
-                    ? loadAssets(params)
-                    : getCameraPermissions()
+                return loadAssets(params)
             }
         } catch (err) {
             // need to add component that display where there is an error
