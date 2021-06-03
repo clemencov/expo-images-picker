@@ -102,6 +102,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
     }, [])
 
     useEffect(() => {
+        alert(1)
         getAssets()
     }, [assetsType])
 
