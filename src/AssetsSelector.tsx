@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+    FC,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react'
 import { Dimensions, View, ActivityIndicator, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import { Asset, AssetsOptions, getAssetsAsync } from 'expo-media-library'
@@ -15,6 +22,15 @@ import {
 import { ImageResult } from 'expo-image-manipulator'
 
 const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
+    const isMounted = useRef(false)
+
+    useEffect(() => {
+        isMounted.current = true
+        return () => {
+            isMounted.current = false
+        }
+    }, [])
+
     const {
         manipulate,
         assetsType,
@@ -59,6 +75,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
         (params: AssetsOptions) => {
             getAssetsAsync(params)
                 .then(({ endCursor, assets, hasNextPage }) => {
+                    if (!isMounted) return
                     if (availableOptions.after === endCursor) return
                     const newAssets = assets
                     setAvailableOptions({
